@@ -122,7 +122,7 @@ export default function DashboardSection() {
 
           {/* Side-by-side panel */}
           <div className="card" style={{ overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '520px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{ minHeight: '520px' }}>
 
               {/* ── LEFT: Original Image ─────────────────────────────────── */}
               <div style={{
@@ -222,7 +222,7 @@ export default function DashboardSection() {
         </div>
 
         <div className="card" style={{ padding: '1.75rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '1.5rem' }}>
 
             {/* ── LEFT: Upload ──────────────────────────────────────────── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
