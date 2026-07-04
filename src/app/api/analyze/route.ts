@@ -93,13 +93,40 @@ async function runAnalysis(
     ],
     config: {
       temperature: 0.2,    // Low temperature for deterministic clinical output
-      maxOutputTokens: 1024,
+      maxOutputTokens: 2048,
       responseMimeType: "application/json",
+      safetySettings: [
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+      ],
     },
   });
 
   const text = response.text ?? '';
   if (!text) throw new Error('Empty response from Gemini API');
+  
+  // Validate that it is actually valid JSON
+  try {
+    JSON.parse(text);
+  } catch (e) {
+    console.error('[OncoVision] Gemini returned invalid/truncated JSON:', text);
+    // If it's truncated, try to rescue whatever fields we can using regex
+    const diagMatch = text.match(/"diagnosis_status"\s*:\s*"([^"]+)"/);
+    const confMatch = text.match(/"confidence_score"\s*:\s*(\d+)/);
+    
+    const rescuedStatus = diagMatch ? diagMatch[1] : "Analysis Truncated (Safety Filter)";
+    const rescuedConf   = confMatch ? parseInt(confMatch[1], 10) : 0;
+
+    text = JSON.stringify({
+      diagnosis_status: rescuedStatus,
+      confidence_score: rescuedConf,
+      visual_findings: "The AI model truncated the response during generation, likely due to safety filters triggering on medical images. Only partial data could be recovered.",
+      feature_attributions: [],
+      clinical_recommendation: "Please review the image manually."
+    });
+  }
   
   return text.trim();
 }
