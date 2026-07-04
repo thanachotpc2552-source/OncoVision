@@ -94,19 +94,14 @@ async function runAnalysis(
     config: {
       temperature: 0.2,    // Low temperature for deterministic clinical output
       maxOutputTokens: 1024,
+      responseMimeType: "application/json",
     },
   });
 
-  let text = response.text ?? '';
+  const text = response.text ?? '';
   if (!text) throw new Error('Empty response from Gemini API');
   
-  // Clean potential markdown formatting from JSON output by extracting the JSON block
-  const match = text.match(/\{[\s\S]*\}/);
-  if (match) {
-    text = match[0];
-  }
-  
-  return text;
+  return text.trim();
 }
 
 // ── Route Handler ─────────────────────────────────────────────────────────────
