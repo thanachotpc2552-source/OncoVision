@@ -134,8 +134,21 @@ export default function AnalysisResult({ analysisText, modelUsed, timestamp }: P
     }
   }, [analysisText]);
 
-  // State for editable notes
+  // State for editable notes and saving status
   const [notes, setNotes] = useState(data?.clinical_recommendation || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSaveEHR = () => {
+    setIsSaving(true);
+    // Simulate network request to EHR system
+    setTimeout(() => {
+      setIsSaving(false);
+      setSaved(true);
+      // Reset success state after 3 seconds
+      setTimeout(() => setSaved(false), 3000);
+    }, 800);
+  };
 
   const time = useMemo(() => {
     try { return new Date(timestamp).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }); }
@@ -206,8 +219,33 @@ export default function AnalysisResult({ analysisText, modelUsed, timestamp }: P
           }}
         />
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-          <button className="btn-outline" style={{ fontSize: '0.8125rem', padding: '0.4rem 1rem', borderRadius: '0.375rem' }}>
-            Save Note to EHR
+          <button 
+            className="btn-outline" 
+            onClick={handleSaveEHR}
+            disabled={isSaving || saved}
+            style={{ 
+              fontSize: '0.8125rem', 
+              padding: '0.4rem 1rem', 
+              borderRadius: '0.375rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              backgroundColor: saved ? '#f0fdf4' : 'transparent',
+              borderColor: saved ? '#22c55e' : '',
+              color: saved ? '#16a34a' : '',
+              cursor: (isSaving || saved) ? 'not-allowed' : 'pointer',
+              opacity: isSaving ? 0.7 : 1
+            }}
+          >
+            {isSaving && (
+              <div style={{
+                width: 14, height: 14, borderRadius: '50%',
+                border: '2px solid #cbd5e1',
+                borderTopColor: '#0f172a',
+                animation: 'spin 0.8s linear infinite',
+              }} />
+            )}
+            {saved ? '✓ Saved to EHR' : isSaving ? 'Saving...' : 'Save Note to EHR'}
           </button>
         </div>
       </Field>
