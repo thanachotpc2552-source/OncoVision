@@ -8,6 +8,7 @@ interface Props {
   timestamp:    string;
   imageB64?:    string;
   mimeType?:    string;
+  readOnly?:    boolean;
 }
 
 interface AnalysisData {
@@ -125,7 +126,7 @@ function Field({ label, children, accent = false }: { label: string; children: R
 
 /* ── Main Component ──────────────────────────────────────────────────────── */
 
-export default function AnalysisResult({ analysisText, modelUsed, timestamp, imageB64, mimeType }: Props) {
+export default function AnalysisResult({ analysisText, modelUsed, timestamp, imageB64, mimeType, readOnly = false }: Props) {
   // Try to parse JSON. If it fails, fallback to raw text mode.
   const data: AnalysisData | null = useMemo(() => {
     try {
@@ -257,53 +258,69 @@ export default function AnalysisResult({ analysisText, modelUsed, timestamp, ima
         </Field>
       )}
 
-      {/* Editable Clinical Notes */}
-      <Field label="Clinical Notes Generator (Editable)">
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          style={{
-            width: '100%', minHeight: '120px',
+      {/* Editable/Read-Only Clinical Notes */}
+      <Field label={readOnly ? "Clinical Notes" : "Clinical Notes Generator (Editable)"}>
+        {readOnly ? (
+          <div style={{
+            width: '100%', minHeight: '80px',
             padding: '0.875rem',
-            border: '1px solid #cbd5e1',
             borderRadius: '0.5rem',
             fontSize: '0.9375rem', color: '#1e293b',
-            fontFamily: 'inherit',
             lineHeight: 1.6,
-            resize: 'vertical',
             background: '#f8fafc',
-          }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-          <button 
-            className="btn-outline" 
-            onClick={handleSaveEHR}
-            disabled={isSaving || saved}
-            style={{ 
-              fontSize: '0.8125rem', 
-              padding: '0.4rem 1rem', 
-              borderRadius: '0.375rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: saved ? '#f0fdf4' : 'transparent',
-              borderColor: saved ? '#22c55e' : '',
-              color: saved ? '#16a34a' : '',
-              cursor: (isSaving || saved) ? 'not-allowed' : 'pointer',
-              opacity: isSaving ? 0.7 : 1
+            whiteSpace: 'pre-wrap'
+          }}>
+            {notes || 'No notes provided.'}
+          </div>
+        ) : (
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            style={{
+              width: '100%', minHeight: '120px',
+              padding: '0.875rem',
+              border: '1px solid #cbd5e1',
+              borderRadius: '0.5rem',
+              fontSize: '0.9375rem', color: '#1e293b',
+              fontFamily: 'inherit',
+              lineHeight: 1.6,
+              resize: 'vertical',
+              background: '#f8fafc',
             }}
-          >
-            {isSaving && (
-              <div style={{
-                width: 14, height: 14, borderRadius: '50%',
-                border: '2px solid #cbd5e1',
-                borderTopColor: '#0f172a',
-                animation: 'spin 0.8s linear infinite',
-              }} />
-            )}
-            {saved ? '✓ Saved to EHR' : isSaving ? 'Saving...' : 'Save Note to EHR'}
-          </button>
-        </div>
+          />
+        )}
+        {!readOnly && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+            <button 
+              className="btn-outline" 
+              onClick={handleSaveEHR}
+              disabled={isSaving || saved}
+              style={{ 
+                fontSize: '0.8125rem', 
+                padding: '0.4rem 1rem', 
+                borderRadius: '0.375rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                backgroundColor: saved ? '#f0fdf4' : 'transparent',
+                borderColor: saved ? '#22c55e' : '',
+                color: saved ? '#16a34a' : '',
+                cursor: (isSaving || saved) ? 'not-allowed' : 'pointer',
+                opacity: isSaving ? 0.7 : 1
+              }}
+            >
+              {isSaving && (
+                <div style={{
+                  width: 14, height: 14, borderRadius: '50%',
+                  border: '2px solid #cbd5e1',
+                  borderTopColor: '#0f172a',
+                  animation: 'spin 0.8s linear infinite',
+                }} />
+              )}
+              {saved ? '✓ Saved to EHR' : isSaving ? 'Saving...' : 'Save Note to EHR'}
+            </button>
+          </div>
+        )}
       </Field>
 
       {/* Footer */}
