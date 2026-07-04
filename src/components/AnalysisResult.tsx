@@ -6,6 +6,8 @@ interface Props {
   analysisText: string;
   modelUsed:    string;
   timestamp:    string;
+  imageB64?:    string;
+  mimeType?:    string;
 }
 
 interface AnalysisData {
