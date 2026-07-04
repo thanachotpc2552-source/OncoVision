@@ -28,7 +28,7 @@ export default function LoadingSkeleton() {
           borderTopColor: '#14b8a6',
           animation: 'spin 0.8s linear infinite',
         }} />
-        <span style={{ fontSize: '0.8125rem', color: '#94a3b8' }}>Consulting Gemini Vision AI…</span>
+        <span style={{ fontSize: '0.8125rem', color: '#94a3b8' }}>Processing cellular morphology...</span>
       </div>
 
       <style>{`

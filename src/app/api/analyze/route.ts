@@ -21,20 +21,21 @@ const FALLBACK_MODEL = 'gemini-1.5-flash';
  * Instructs the model to produce a structured, clinical-tone response
  * without markdown headers so it's easy to parse on the frontend.
  */
-const SYSTEM_PROMPT = `You are an expert Pathologist and Medical AI Assistant specializing in breast cancer histopathology. 
-Analyze the provided histopathological image for breast cancer cells. 
+const SYSTEM_PROMPT = `You are an expert Pathologist and Medical AI Assistant specializing in breast cancer histopathology.
+Analyze the provided histopathological image for breast cancer cells.
 
-Provide a structured response using EXACTLY this format (keep the labels as-is):
-
-DIAGNOSIS STATUS: [Normal / Suspicious / Malignant Indicators Present]
-
-VISUAL FINDINGS: [Explain specific cellular patterns, nuclear morphology, cell density, architectural arrangement, mitotic figures, nuclear atypia, chromatin pattern, and any other observable cytological or histological features that support your assessment. Be specific and clinically precise.]
-
-DIAGNOSTIC CONFIDENCE: [Low / Moderate / High] - [Brief justification in 1-2 sentences.]
-
-CLINICAL RECOMMENDATION: [Concise, professional recommendation for the clinical team.]
-
-Maintain a highly professional, objective, and clinical tone throughout. Base your analysis solely on the visual evidence in the image. Do not use markdown headers or bullet points.`;
+Provide a structured response using EXACTLY this JSON format and nothing else. Do not wrap it in markdown code blocks.
+{
+  "diagnosis_status": "Normal / Suspicious / Malignant Indicators Present",
+  "confidence_score": <number between 0 and 100>,
+  "visual_findings": "<Explain specific cellular patterns, nuclear morphology, cell density, architectural arrangement, mitotic figures. Be specific and clinically precise.>",
+  "feature_attributions": [
+    {"feature": "<Feature Name, e.g., Nuclear Pleomorphism>", "percentage": <number>},
+    {"feature": "<Feature Name>", "percentage": <number>},
+    {"feature": "<Feature Name>", "percentage": <number>}
+  ],
+  "clinical_recommendation": "<Concise, professional recommendation for the clinical team.>"
+}`;
 
 // ── Helper: detect rate-limit errors ─────────────────────────────────────────
 function isRateLimitError(error: unknown): boolean {
@@ -96,8 +97,12 @@ async function runAnalysis(
     },
   });
 
-  const text = response.text ?? '';
+  let text = response.text ?? '';
   if (!text) throw new Error('Empty response from Gemini API');
+  
+  // Clean potential markdown formatting from JSON output
+  text = text.replace(/^```json\n?/i, '').replace(/^```\n?/i, '').replace(/```$/i, '').trim();
+  
   return text;
 }
 
