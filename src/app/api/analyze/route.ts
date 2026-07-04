@@ -193,11 +193,11 @@ export async function POST(request: NextRequest) {
           console.log(`[OncoVision] Fallback model succeeded.`);
         } catch (fallbackError) {
           console.error('[OncoVision] Fallback model also failed:', fallbackError);
+          const fMsg = fallbackError instanceof Error ? fallbackError.message : 'Unknown error';
           return NextResponse.json(
             {
-              error: 'Both AI models are currently unavailable. Please try again in a few moments.',
-              detail:
-                fallbackError instanceof Error ? fallbackError.message : 'Unknown fallback error',
+              error: `API Request Failed: ${fMsg}. If you hit a rate limit, please wait a minute.`,
+              detail: fMsg,
             },
             { status: 503 },
           );
@@ -205,11 +205,17 @@ export async function POST(request: NextRequest) {
       } else {
         // Non-recoverable primary error (auth, bad request, etc.)
         console.error('[OncoVision] Primary model non-recoverable error:', primaryError);
+        const pMsg = primaryError instanceof Error ? primaryError.message : 'Unknown error';
+        
+        let userError = `AI analysis failed: ${pMsg}`;
+        if (pMsg.includes('Empty response')) {
+           userError = 'AI refused to analyze the image, likely due to safety filters (e.g., medical imagery block).';
+        }
+
         return NextResponse.json(
           {
-            error: 'AI analysis failed. Please check your API key and try again.',
-            detail:
-              primaryError instanceof Error ? primaryError.message : 'Unknown primary error',
+            error: userError,
+            detail: pMsg,
           },
           { status: 500 },
         );
