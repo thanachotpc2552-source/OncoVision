@@ -100,8 +100,11 @@ async function runAnalysis(
   let text = response.text ?? '';
   if (!text) throw new Error('Empty response from Gemini API');
   
-  // Clean potential markdown formatting from JSON output
-  text = text.replace(/^```json\n?/i, '').replace(/^```\n?/i, '').replace(/```$/i, '').trim();
+  // Clean potential markdown formatting from JSON output by extracting the JSON block
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) {
+    text = match[0];
+  }
   
   return text;
 }
