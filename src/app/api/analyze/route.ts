@@ -95,16 +95,10 @@ async function runAnalysis(
       temperature: 0.2,    // Low temperature for deterministic clinical output
       maxOutputTokens: 2048,
       responseMimeType: "application/json",
-      safetySettings: [
-        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-      ],
     },
   });
 
-  const text = response.text ?? '';
+  let text = response.text ?? '';
   if (!text) throw new Error('Empty response from Gemini API');
   
   // Validate that it is actually valid JSON
