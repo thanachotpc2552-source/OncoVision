@@ -31,8 +31,10 @@ Provide a structured response using EXACTLY this JSON format and nothing else. D
   "visual_findings": "<Explain specific cellular patterns, nuclear morphology, cell density, architectural arrangement, mitotic figures. Be specific and clinically precise.>",
   "feature_attributions": [
     {"feature": "<Feature Name, e.g., Nuclear Pleomorphism>", "percentage": <number>},
-    {"feature": "<Feature Name>", "percentage": <number>},
     {"feature": "<Feature Name>", "percentage": <number>}
+  ],
+  "suspicious_regions": [
+    {"ymin": <0-1000>, "xmin": <0-1000>, "ymax": <0-1000>, "xmax": <0-1000>, "label": "<reason>"}
   ],
   "clinical_recommendation": "<Concise, professional recommendation for the clinical team.>"
 }`;
@@ -118,6 +120,7 @@ async function runAnalysis(
       confidence_score: rescuedConf,
       visual_findings: "The AI model truncated the response during generation, likely due to safety filters triggering on medical images. Only partial data could be recovered.",
       feature_attributions: [],
+      suspicious_regions: [],
       clinical_recommendation: "Please review the image manually."
     });
   }

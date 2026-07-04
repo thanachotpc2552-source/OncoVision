@@ -158,14 +158,56 @@ export default function DashboardSection() {
                 </div>
 
                 {/* Image fills the rest */}
-                <div style={{ position: 'relative', flex: 1, minHeight: '400px', background: '#f8fafc' }}>
-                  <Image
-                    src={previewUrl}
-                    alt={`Histopathological image: ${fileName}`}
-                    fill
-                    className="object-contain"
-                    sizes="50vw"
-                  />
+                <div style={{ position: 'relative', flex: 1, background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={previewUrl}
+                      alt={`Histopathological image: ${fileName}`}
+                      style={{ width: '100%', height: 'auto', display: 'block' }}
+                    />
+                    
+                    {/* Render Bounding Boxes */}
+                    {(() => {
+                      try {
+                        const data = JSON.parse(result.analysis);
+                        const boxes = data.suspicious_regions || [];
+                        return boxes.map((box: any, i: number) => {
+                          const top = (box.ymin / 1000) * 100;
+                          const left = (box.xmin / 1000) * 100;
+                          const height = ((box.ymax - box.ymin) / 1000) * 100;
+                          const width = ((box.xmax - box.xmin) / 1000) * 100;
+                          return (
+                            <div key={i} className="animate-fade-in" style={{
+                              position: 'absolute',
+                              top: `${top}%`, left: `${left}%`,
+                              width: `${width}%`, height: `${height}%`,
+                              border: '2px solid #ef4444',
+                              backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                              boxShadow: '0 0 0 1px rgba(0,0,0,0.5)',
+                              zIndex: 10,
+                              pointerEvents: 'none'
+                            }}>
+                              <div style={{
+                                position: 'absolute',
+                                top: -22, left: -2,
+                                background: '#ef4444', color: '#ffffff',
+                                fontSize: '0.625rem', fontWeight: 700,
+                                padding: '2px 6px',
+                                borderRadius: '2px',
+                                whiteSpace: 'nowrap',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                              }}>
+                                🎯 {box.label || 'Suspicious'}
+                              </div>
+                            </div>
+                          );
+                        });
+                      } catch (e) {
+                        return null;
+                      }
+                    })()}
+                  </div>
                 </div>
               </div>
 
