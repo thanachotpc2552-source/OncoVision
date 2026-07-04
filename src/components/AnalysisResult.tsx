@@ -123,7 +123,7 @@ function Field({ label, children, accent = false }: { label: string; children: R
 
 /* ── Main Component ──────────────────────────────────────────────────────── */
 
-export default function AnalysisResult({ analysisText, modelUsed, timestamp }: Props) {
+export default function AnalysisResult({ analysisText, modelUsed, timestamp, imageB64, mimeType }: Props) {
   // Try to parse JSON. If it fails, fallback to raw text mode.
   const data: AnalysisData | null = useMemo(() => {
     try {
@@ -139,15 +139,37 @@ export default function AnalysisResult({ analysisText, modelUsed, timestamp }: P
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const handleSaveEHR = () => {
+  const handleSaveEHR = async () => {
+    if (isSaving || saved) return;
     setIsSaving(true);
-    // Simulate network request to EHR system
-    setTimeout(() => {
-      setIsSaving(false);
+    
+    try {
+      const payload = {
+        modelUsed,
+        analysisText,
+        clinicalNotes: notes,
+        diagnosis_status: data?.diagnosis_status,
+        confidence_score: data?.confidence_score,
+        imageB64,
+        mimeType
+      };
+
+      const res = await fetch('/api/ehr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!res.ok) throw new Error('Failed to save to EHR');
+      
       setSaved(true);
-      // Reset success state after 3 seconds
       setTimeout(() => setSaved(false), 3000);
-    }, 800);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to save record to local database.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const time = useMemo(() => {

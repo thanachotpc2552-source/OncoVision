@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
@@ -26,7 +27,7 @@ export default function Navbar() {
     >
       <div className="container-md flex items-center justify-between">
         {/* Logo */}
-        <a href="#hero" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
           <div style={{
             width: 34, height: 34,
             borderRadius: 10,
@@ -42,16 +43,16 @@ export default function Navbar() {
           <span style={{ fontWeight: 700, fontSize: '1.0625rem', color: '#0f172a', letterSpacing: '-0.01em' }}>
             Onco<span style={{ color: '#0d9488' }}>Vision</span>
           </span>
-        </a>
+        </Link>
 
         {/* Nav links */}
         <nav className="hidden md:flex items-center" style={{ gap: '2rem' }}>
           {[
-            { label: 'How It Works', href: '#methodology' },
-            { label: 'Analyze',      href: '#dashboard' },
-            { label: 'About',        href: '#about' },
+            { label: 'How It Works', href: '/#methodology' },
+            { label: 'Analyze',      href: '/#dashboard' },
+            { label: 'Patient Records', href: '/records' },
           ].map((l) => (
-            <a
+            <Link
               key={l.label}
               href={l.href}
               style={{
@@ -65,14 +66,14 @@ export default function Navbar() {
               onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
             >
               {l.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
         {/* CTA */}
-        <a href="#dashboard" className="btn-primary" style={{ fontSize: '0.875rem', padding: '0.5rem 1.125rem' }}>
+        <Link href="/#dashboard" className="btn-primary" style={{ fontSize: '0.875rem', padding: '0.5rem 1.125rem', textDecoration: 'none' }}>
           Try Analyzer
-        </a>
+        </Link>
       </div>
     </header>
   );

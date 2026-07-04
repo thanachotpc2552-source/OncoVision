@@ -236,6 +236,8 @@ export default function DashboardSection() {
                     analysisText={result.analysis}
                     modelUsed={result.modelUsed}
                     timestamp={result.timestamp}
+                    imageB64={imageB64}
+                    mimeType={mimeType}
                   />
                 </div>
               </div>
